@@ -72,6 +72,7 @@ public:
     }
     
     bool arrival(){
+        //randomize customer arrival time ~~ needs more work
         bool a = false;
         int r = rand() % 2+1;
         if(r == 1){
@@ -126,11 +127,26 @@ public:
     void runSimulation(){
         srand (time(NULL));
         do{
+            //create queues
             constructQueues();
+                //while running ~~ needs work
                 while(true == true){
+                    //get customer randomized arrival
                     if(arrival() == true){
+                        //Get customer item count
                         customer = loadCustomer();
+                        //get best position in queue for customer
                         int qPos = chooseQueue();
+                        //assign customer to queue
+                        queueVec[qPos].push_back(customer);
+                        //NEED add customer to print array
+                        
+                        //NEED time computation for customer at register wait time
+                        
+                        //NEED customer wait time tracker
+                        
+                        //print array showing customer data
+                        printStore();
                     }
                 }
             
