@@ -17,6 +17,10 @@
 #include <stdio.h>      /* printf */
 #include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
 #include <math.h>
+#include <queue>
+#include <deque>
+#include <vector>
+
 
 using namespace std;
 
@@ -27,23 +31,30 @@ using namespace std;
 class StoreSimulation{
 public:
     char lines[10][15];
-    int checkOuts;
+    int checkOuts, averageTime = 0;
     long long ticker = 0;
+    vector<queue<int> > QueueArray;
+
     
     
     StoreSimulation(){
+        //Fill store with space
         for(int i = 0; i < 10; i++){
             for(int j = 0; j < 15; j++){
                 lines[i][j] = ' ';
             }
         }
+        //
+        for (int i = 0; i < checkOuts; i++){
             
+        }
+       //Fill store with registers    
         cout << "Number of Checkouts? 1-7" << endl;
         cin >> checkOuts;
-        for(int i = 0; i < checkOuts*3; i+=3){
-            lines[1][i] = '|';
-            lines[1][i+1] = 'R';
-            lines[1][i+2] = '|';  
+        for(int i = 0; i < checkOuts*2; i+=2){
+            lines[i][0] = '|';
+            lines[i][1] = 'R';
+            lines[i][2] = '|';  
         }
         
     }
@@ -53,6 +64,8 @@ public:
     }
     
     void printStore(){
+        //Print out store + data
+        cout << "Average customer queue time: " << averageTime << endl;
         for(int i = 0; i < 10; i++){
             for(int j = 0; j < 15; j++){
                 cout << lines[i][j] << ' ';
