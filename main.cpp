@@ -33,7 +33,7 @@ public:
     char lines[10][15];
     int checkOuts, averageTime = 0;
     long long ticker = 0;
-    vector<queue<int> > QueueArray;
+    vector<queue<int> > queueVec;
 
     
     
@@ -44,10 +44,7 @@ public:
                 lines[i][j] = ' ';
             }
         }
-        //
-        for (int i = 0; i < checkOuts; i++){
-            
-        }
+        
        //Fill store with registers    
         cout << "Number of Checkouts? 1-7" << endl;
         cin >> checkOuts;
@@ -60,10 +57,20 @@ public:
     }
     
     void loadCustomer(){
+           
+    }
+    
+    void constructQueues(){
+        for (int i = 0; i < checkOuts; i++){
+            queueVec.push_back(queue<int>());
+        } 
         
+        queueVec[1].push(5);
+        cout << queueVec[1].front();
     }
     
     void printStore(){
+        
         //Print out store + data
         cout << "Average customer queue time: " << averageTime << endl;
         for(int i = 0; i < 10; i++){
@@ -74,7 +81,7 @@ public:
         }
     }
     
-    //void load
+    
     
     
 };
@@ -89,6 +96,7 @@ int main(int argc, char** argv) {
     
     StoreSimulation newSim;
     
+    newSim.constructQueues();
     newSim.printStore();
     
 
