@@ -34,11 +34,11 @@ class StoreSimulation{
 public:
     bool run = true;
     char lines[15][15];
-    int checkOuts, averageTime = 0, avgItems, customers;
+    int checkOuts, averageTime = 0, avgItems, customer;
     double avgArrivalTime;
     long long ticker = 0;
-    vector<queue<int> > queueVec;
-    srand (time(NULL));
+    vector<deque<int> > queueVec;
+    
 
     
     
@@ -65,7 +65,7 @@ public:
         
     }
     
-    int loadCustomers(){
+    int loadCustomer(){
         //randomize item count and return for customer
         int c = rand() % avgItems*2 + 1;
         return c;
@@ -86,11 +86,29 @@ public:
     void constructQueues(){
         //create multiple queues inside a vector
         for (int i = 0; i < checkOuts; i++){
-            queueVec.push_back(queue<int>());
+            queueVec.push_back(deque<int>());
         } 
         
        // queueVec[1].push(5);
        // cout << queueVec[1].front();
+    }
+    
+    int chooseQueue(){
+        //choose which queue customer joins based on item count of other queues
+        int largest = 0, qPos;
+        for(int i = 0; i < checkOuts; i++){
+            int temp = 0;
+            int length = queueVec[i].size();
+            for(int j = 0; j < length; j++){
+                temp += queueVec[i][j];
+                if(temp >= largest){
+                    largest = temp;
+                    qPos = i;
+                }
+            }
+        }
+        
+        return qPos;
     }
     
     void printStore(){
@@ -106,8 +124,15 @@ public:
     }
     
     void runSimulation(){
+        srand (time(NULL));
         do{
             constructQueues();
+                while(true == true){
+                    if(arrival() == true){
+                        customer = loadCustomer();
+                        int qPos = chooseQueue();
+                    }
+                }
             
         }while(run == true);
     }
