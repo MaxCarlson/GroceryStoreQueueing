@@ -96,14 +96,18 @@ public:
     
     int chooseQueue(){
         //choose which queue customer joins based on item count of other queues
-        int largest = 0, qPos;
+        int smallest = 15000000, qPos = 0;
         for(int i = 0; i < checkOuts; i++){
             int temp = 0;
             int length = queueVec[i].size();
+            if(length == 0){
+                qPos = i;
+                return qPos;
+            }
             for(int j = 0; j < length; j++){
-                temp += queueVec[i][j];
-                if(temp >= largest){
-                    largest = temp;
+                temp += queueVec[i].at(j);
+                if(temp <= smallest){
+                    smallest = temp;
                     qPos = i;
                 }
             }
@@ -122,6 +126,8 @@ public:
             }
             cout << endl;
         }
+        
+        
     }
     
     void runSimulation(){
@@ -146,6 +152,17 @@ public:
                         //NEED customer wait time tracker
                         
                         //print array showing customer data
+                        
+                        //Testing!!
+                        
+                        for(int i = 0; i < checkOuts; i++){
+                            int length = queueVec[i].size();
+                            for(int j = 0; j < length; j++){
+                                cout << queueVec[i].at(j);
+                            }
+                        }
+                        
+                        
                         printStore();
                     }
                 }
