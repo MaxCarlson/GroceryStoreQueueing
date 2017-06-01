@@ -93,7 +93,7 @@ public:
         return arrive;
     }
     */
-    bool arrival(double timer, int check){
+    bool arrival(double timer){
         if(check == 0){
             srand (time(NULL));
             arrivalTime = (double)(rand() % (int)(avgArrivalTime*2));    
@@ -197,7 +197,7 @@ public:
                     //Timer for customer arrivals
                     arriving = ( clock() - arrivalTimer ) / (double) CLOCKS_PER_SEC;
                     //get customer randomized arrival
-                    if(arrival(arriving, check) == true){
+                    if(arrival(arriving) == true){
                         //Reset arrival timer
                         arrivalTimer = clock();
                         arriving = 0;
