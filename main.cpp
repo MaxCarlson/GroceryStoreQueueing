@@ -36,10 +36,11 @@ class StoreSimulation{
 public:
     bool run = true;
     char lines[15][15];
-    int checkOuts, averageTime = 0, avgItems, customer;
-    double avgArrivalTime;
+    int checkOuts, averageTime = 0, avgItems, customer, check = 0;
+    double avgArrivalTime, arrivalTime;
     long long ticker = 0;
     vector<deque<int> > queueVec;
+    vector<deque<double> > customerTimers;
     
 
     
@@ -55,7 +56,7 @@ public:
        //Fill store with registers, average arrival time of customers and items per   
         cout << "Number of Checkouts? 1-7" << endl;
         cin >> checkOuts;
-        cout << "Average arrival time of customers in seconds? 0.5-500" << endl;
+        cout << "Average arrival time of customers in seconds? 1-6000" << endl;
         cin >> avgArrivalTime;
         cout << "Average number of items per customer? 1-200" << endl;
         cin >> avgItems;
@@ -72,16 +73,17 @@ public:
         int c = rand() % avgItems*2 + 1;
         return c;
     }
-    
+    /*
     bool arrival(){
         //randomize customer arrival time ~~ needs more work??
+        srand (time(NULL));
         //start system clock
         clock_t start;
         double arrivalDur;
         start = clock();
         bool arrive = false;
         //get a random value between 0 and double the arrival time specified 
-        double arr = (double)(rand() % (int)avgArrivalTime*4)/2;
+        double arr = (double)(rand() % (int)(avgArrivalTime*2));
         while(arrive == false){
             arrivalDur = ( clock() - start ) / (double) CLOCKS_PER_SEC;
             if(arrivalDur >= arr){
@@ -89,6 +91,20 @@ public:
             }
         }
         return arrive;
+    }
+    */
+    bool arrival(double timer, int check){
+        if(check == 0){
+            srand (time(NULL));
+            double arrivalTime = (double)(rand() % (int)(avgArrivalTime*2));    
+        }
+        check += 1;
+        if(timer >= arrivalTime){
+            check = 0;
+            return true;
+        } 
+        return false;
+        
     }
     
     void addCustomer(int spot){
@@ -101,17 +117,16 @@ public:
                 lines[spot][i] = 'C';
                 break;
             }
-        }
-        
-    }
-    
+        }   
+    }    
     
     void constructQueues(){
-        //create multiple queues inside a vector
+        //create multiple queues inside a vector for customers items
         for (int i = 0; i < checkOuts; i++){
             queueVec.push_back(deque<int>());
+            //Customer timer queues
+            customerTimers.push_back(deque<double>());
         } 
-        
        // queueVec[1].push(5);
        // cout << queueVec[1].front();
     }
@@ -141,6 +156,17 @@ public:
         return qPos;
     }
     
+    void updateTimers(double time){
+        //Takes an integer denoting how many seconds customer has been queued
+        //Updates all customer timers
+        for(int i = 0; i < checkOuts; i++){
+            int qLength = customerTimers[i].size();
+            for(int j = 0; j < qLength; j++){
+                customerTimers[i].at(j) += time;
+            }
+        }
+    }
+    
     void printStore(){
         
         //Print out store-graphic + data
@@ -156,50 +182,48 @@ public:
     }
     
     void runSimulation(){
-        srand (time(NULL));
+        
         do{
             //create queues
             constructQueues();
+                //Start program clocks
+                clock_t lineTimer, arrivalTimer;
+                double duration, arriving = 0;
+                arrivalTimer = clock();
                 //while running ~~ needs work
-                while(true == true){
+                while(true){
+                    //Timer for customer lines
+                    lineTimer = clock();    
+                    //Timer for customer arrivals
+                    arriving = ( clock() - arrivalTimer ) / (double) CLOCKS_PER_SEC;
                     //get customer randomized arrival
-                    
-                    
-                    if(arrival() == true){
+                    if(arrival(arriving, check) == true){
+                        //Reset arrival timer
+                        arrivalTimer = clock();
+                        arriving = 0;
                         //Get customer item count
-                        customer = loadCustomer();
-                        
+                        customer = loadCustomer();                        
                         //get best position in queue for customer
-                        int qPos = chooseQueue();
-                        
+                        int qPos = chooseQueue();                        
                         //assign customer to queue
-                        queueVec[qPos].push_back(customer);
-                        
+                        queueVec[qPos].push_back(customer); 
+                        //add customer to timer queue
+                        customerTimers[qPos].push_back(0);
                         //add customer to print array
                         addCustomer(qPos);
-                        
-                        //NEED time computation for customer at register wait time
-                        
-                        //NEED customer wait time tracker
-                        
                         //print array showing customer data
-                        printStore();
-                        
-                        //Testing!!
-                        /*
-                        for(int i = 0; i < checkOuts; i++){
-                            int length = queueVec[i].size();
-                            for(int j = 0; j < length; j++){
-                                cout << queueVec[i].at(j);
-                            }
-                        }
-                        */
-                        
-                        
+                        printStore();                        
+   
                     }
+                    //Update customer line timers
+                    duration = ( clock() - lineTimer ) / (double) CLOCKS_PER_SEC;
+                    updateTimers(duration);    
+                    //NEED customer wait time tracker
+                    //cout << customerTimers[0].at(0) << endl;
+                    //cout << arriving << endl;
                 }
             
-        }while(run == true);
+        }while(true);
     }
     
     
@@ -208,8 +232,15 @@ public:
 };
 
 
-
-
+                        //Testing!!
+/*
+                        for(int i = 0; i < checkOuts; i++){
+                            int length = queueVec[i].size();
+                            for(int j = 0; j < length; j++){
+                                cout << queueVec[i].at(j);
+                            }
+                        }
+                        */
 
 
 
