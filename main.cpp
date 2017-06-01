@@ -96,7 +96,7 @@ public:
     bool arrival(double timer, int check){
         if(check == 0){
             srand (time(NULL));
-            double arrivalTime = (double)(rand() % (int)(avgArrivalTime*2));    
+            arrivalTime = (double)(rand() % (int)(avgArrivalTime*2));    
         }
         check += 1;
         if(timer >= arrivalTime){
