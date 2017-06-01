@@ -12,6 +12,8 @@
  */
 
 #include <cstdlib>
+#include <cstdio>
+#include <ctime>
 #include <string>
 #include <iostream>
 #include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
@@ -72,15 +74,21 @@ public:
     }
     
     bool arrival(){
-        //randomize customer arrival time ~~ needs more work
-        bool a = false;
-        int r = rand() % 2+1;
-        if(r == 1){
-            a = true;
-            return a;
-        } else {
-            return a;
+        //randomize customer arrival time ~~ needs more work??
+        //start system clock
+        clock_t start;
+        double arrivalDur;
+        start = clock();
+        bool arrive = false;
+        //get a random value between 0 and double the arrival time specified 
+        double arr = (double)(rand() % (int)avgArrivalTime*4)/2;
+        while(arrive == false){
+            arrivalDur = ( clock() - start ) / (double) CLOCKS_PER_SEC;
+            if(arrivalDur >= arr){
+                arrive = true;
+            }
         }
+        return arrive;
     }
     
     void addCustomer(int spot){
@@ -155,20 +163,27 @@ public:
                 //while running ~~ needs work
                 while(true == true){
                     //get customer randomized arrival
+                    
+                    
                     if(arrival() == true){
                         //Get customer item count
                         customer = loadCustomer();
+                        
                         //get best position in queue for customer
                         int qPos = chooseQueue();
+                        
                         //assign customer to queue
                         queueVec[qPos].push_back(customer);
+                        
                         //add customer to print array
                         addCustomer(qPos);
+                        
                         //NEED time computation for customer at register wait time
                         
                         //NEED customer wait time tracker
                         
                         //print array showing customer data
+                        printStore();
                         
                         //Testing!!
                         /*
@@ -180,7 +195,7 @@ public:
                         }
                         */
                         
-                        printStore();
+                        
                     }
                 }
             
