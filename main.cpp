@@ -83,6 +83,20 @@ public:
         }
     }
     
+    void addCustomer(int spot){
+        //y coordinate of customer spot
+        spot *= 2;
+        spot += 1;
+        //find out if spot is taken + add customer to array
+        for(int i = 1; i < 15; i++){
+            if(lines[spot][i] == ' '){
+                lines[spot][i] = 'C';
+                break;
+            }
+        }
+        
+    }
+    
     
     void constructQueues(){
         //create multiple queues inside a vector
@@ -100,17 +114,20 @@ public:
         for(int i = 0; i < checkOuts; i++){
             int temp = 0;
             int length = queueVec[i].size();
+            //if queue size is zero route customer to that queue
             if(length == 0){
                 qPos = i;
                 return qPos;
             }
+            //if queue sizes aren't zero, add up items 
             for(int j = 0; j < length; j++){
                 temp += queueVec[i].at(j);
-                if(temp <= smallest){
+            }
+            //find the smallest item count queue 
+            if(temp <= smallest){
                     smallest = temp;
                     qPos = i;
                 }
-            }
         }
         
         return qPos;
@@ -145,8 +162,8 @@ public:
                         int qPos = chooseQueue();
                         //assign customer to queue
                         queueVec[qPos].push_back(customer);
-                        //NEED add customer to print array
-                        
+                        //add customer to print array
+                        addCustomer(qPos);
                         //NEED time computation for customer at register wait time
                         
                         //NEED customer wait time tracker
@@ -154,14 +171,14 @@ public:
                         //print array showing customer data
                         
                         //Testing!!
-                        
+                        /*
                         for(int i = 0; i < checkOuts; i++){
                             int length = queueVec[i].size();
                             for(int j = 0; j < length; j++){
                                 cout << queueVec[i].at(j);
                             }
                         }
-                        
+                        */
                         
                         printStore();
                     }
