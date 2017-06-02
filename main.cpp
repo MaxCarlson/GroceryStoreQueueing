@@ -35,11 +35,11 @@ using namespace std;
 class StoreSimulation{
 public:
     bool run = true;
-    char lines[15][15];
+    char lines[50][50];
     int checkOuts, avgItems, customer, check = 0, timePerItem;
     double avgArrivalTime, arrivalTime;
-    //Total customers processed
-    int ticker = 0;
+    //Total customers processed, indication of where in array to remove 'C'
+    int ticker = 0, removeQPos = 0;
     //temp var for holding ticker info, average time spent in queue, total time in queues
     double tmp, averageTime = 0, totalTime = 0;
     //customers represented by items
@@ -51,14 +51,14 @@ public:
 
     StoreSimulation(){
         //Fill store with space
-        for(int i = 0; i < 15; i++){
-            for(int j = 0; j < 15; j++){
+        for(int i = 0; i < 50; i++){
+            for(int j = 0; j < 50; j++){
                 lines[i][j] = ' ';
             }
         }
         
        //Fill store with registers, average arrival time of customers and items per   
-        cout << "Number of Checkouts? 1-7" << endl;
+        cout << "Number of Checkouts? 1-25" << endl;
         cin >> checkOuts;
         cout << "Average arrival time of customers in seconds? 1-6000s" << endl;
         cin >> avgArrivalTime;
@@ -86,13 +86,25 @@ public:
         spot *= 2;
         spot += 1;
         //find out if spot is taken + add customer to array
-        for(int i = 1; i < 15; i++){
+        for(int i = 1; i < 50; i++){
             if(lines[spot][i] == ' '){
                 lines[spot][i] = 'C';
                 break;
             }
         }   
-    }    
+    }
+
+    void removeCustomer(int pos){
+        //Remove customer from array when customer is removed from queues
+        pos *= 2;
+        pos += 1;
+        for(int i = 1; i < 50; i++){
+            if(lines[pos][i] == ' '){
+                lines[pos][i-1] = ' ';
+            }
+        }
+        
+    }
     
     void constructQueues(){
         //create multiple queues inside a vector for customers items
@@ -102,8 +114,6 @@ public:
             customerTimers.push_back(deque<double>());
             
         } 
-       // queueVec[1].push(5);
-       // cout << queueVec[1].front();
     }
     
     int chooseQueue(){
@@ -146,8 +156,8 @@ public:
         
         //Print out store-graphic + data
         cout << "Average customer queue time: " << averageTime << endl;
-        for(int i = 0; i < 15; i++){
-            for(int j = 0; j < 15; j++){
+        for(int i = 0; i < 50; i++){
+            for(int j = 0; j < 50; j++){
                 cout << lines[i][j] << ' ';
             }
             cout << endl;
@@ -180,6 +190,8 @@ public:
             if(queueVec[i].size()>0){
                 queueVec[i].at(0) -= time;
                 if(queueVec[i].at(0)<= 0){
+                    //give array  position at which to remove customer
+                    removeQPos = i;
                     //remove customer from queue when items gone
                     //return time they were in line
                     waitTime = customerTimers[i].at(0);
@@ -194,9 +206,6 @@ public:
         return 0;
     }
     
-    void customerLeaves(){
-        
-    }
     
     void runSimulation(){
         
@@ -245,19 +254,11 @@ public:
                         ticker ++;
                         totalTime += tmp;
                         averageTime = totalTime/ticker;
+                        //Remove customers, 'C', from array
+                        removeCustomer(removeQPos);
                         
                         printStore();
                     }
-                    
-                    //Remove customers at 0 position with 0 items
-                    
-                    
-                    
-                    //
-                    
-                    
-                    //cout << customerTimers[0].at(0) << endl;
-                    //cout << arriving << endl;
                 }
             
         }while(true);
