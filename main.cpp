@@ -73,39 +73,7 @@ public:
         int c = rand() % avgItems*2 + 1;
         return c;
     }
-    /*
-    bool arrival(){
-        //randomize customer arrival time ~~ needs more work??
-        srand (time(NULL));
-        //start system clock
-        clock_t start;
-        double arrivalDur;
-        start = clock();
-        bool arrive = false;
-        //get a random value between 0 and double the arrival time specified 
-        double arr = (double)(rand() % (int)(avgArrivalTime*2));
-        while(arrive == false){
-            arrivalDur = ( clock() - start ) / (double) CLOCKS_PER_SEC;
-            if(arrivalDur >= arr){
-                arrive = true;
-            }
-        }
-        return arrive;
-    }
-    */
-    bool arrival(double timer){
-        if(check == 0){
-            srand (time(NULL));
-            arrivalTime = (double)(rand() % (int)(avgArrivalTime*2));    
-        }
-        check += 1;
-        if(timer >= arrivalTime){
-            check = 0;
-            return true;
-        } 
-        return false;
-        
-    }
+    
     
     void addCustomer(int spot){
         //y coordinate of customer spot
@@ -180,6 +148,23 @@ public:
         
         
     }
+
+    bool arrival(double timer){
+        //Get a random arrival time averaging out to the user input time !! NEEDS WORK
+        //if(check == 0){
+        //    srand (time(NULL));
+        //    arrivalTime = (double)(rand()%(int)(avgArrivalTime*2+1));          
+        //    arrivalTime += 0.5;
+        //}
+        //check += 1;
+        arrivalTime = avgArrivalTime;
+        if(timer >= arrivalTime){
+            check = 0;
+            return true;
+        } 
+        return false;
+        
+    }    
     
     void runSimulation(){
         
@@ -189,12 +174,13 @@ public:
                 //Start program clocks
                 clock_t lineTimer, arrivalTimer;
                 double duration, arriving = 0;
+                //Timer for customer arrivals
                 arrivalTimer = clock();
                 //while running ~~ needs work
                 while(true){
                     //Timer for customer lines
                     lineTimer = clock();    
-                    //Timer for customer arrivals
+                    //Get arrival time offset
                     arriving = ( clock() - arrivalTimer ) / (double) CLOCKS_PER_SEC;
                     //get customer randomized arrival
                     if(arrival(arriving) == true){
