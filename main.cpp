@@ -36,18 +36,19 @@ class StoreSimulation{
 public:
     bool run = true;
     char lines[50][50];
-    int checkOuts, avgItems, customer, check = 0, timePerItem;
+    int checkOuts, avgItems, customer, check = 0, timePerItem, largestLineSize = 4;
     double avgArrivalTime, arrivalTime;
     //Total customers processed, indication of where in array to remove 'C'
     int ticker = 0, removeQPos = 0;
     //temp var for holding ticker info, average time spent in queue, total time in queues
-    double tmp, averageTime = 0, totalTime = 0;
+    double tmp, averageTime = 0, average15 = 0, totalTime = 0;
+    //Deque for 15 second average
+    deque<double> average15Queue;
     //customers represented by items
     vector<deque<double> > queueVec;
     //customer time in line timers
     vector<deque<double> > customerTimers;
-    //customer at register timers
-    vector<double> customer0PositionT;
+    
 
     StoreSimulation(){
         //Fill store with space
@@ -151,20 +152,6 @@ public:
             }
         }
     }
-    
-    void printStore(){
-        
-        //Print out store-graphic + data
-        cout << "Average customer queue time: " << averageTime << endl;
-        for(int i = 0; i < 50; i++){
-            for(int j = 0; j < 50; j++){
-                cout << lines[i][j] << ' ';
-            }
-            cout << endl;
-        }
-        
-        
-    }
 
     bool arrival(double timer){
         //Get a random arrival time averaging out to the user input time !! NEEDS WORK
@@ -187,14 +174,15 @@ public:
         //reduce customers at 0 positions item count by time passed
         double waitTime;
         for(int i = 0; i < checkOuts; i++){
-            if(queueVec[i].size()>0){
+            largestLineSize = queueVec[i].size();
+            if(largestLineSize>0){
                 queueVec[i].at(0) -= time;
                 if(queueVec[i].at(0)<= 0){
                     //give array  position at which to remove customer
                     removeQPos = i;
-                    //remove customer from queue when items gone
-                    //return time they were in line
-                    waitTime = customerTimers[i].at(0);
+                    //return time they were in line, push time to avg15 queue
+                    waitTime = customerTimers[i].at(0);                   
+                    average15Queue.push_back(waitTime);
                     //Remove customer from both queues
                     queueVec[i].pop_front();
                     customerTimers[i].pop_front();
@@ -206,6 +194,27 @@ public:
         return 0;
     }
     
+    void average15Func(){
+        while(average15Queue.size()>15){
+            average15Queue.pop_front();
+        }
+        for(int i = 0; i < 15; i++){
+            average15 += average15Queue[i];
+        }
+        average15 /= 15;
+    }
+
+    void printStore(){
+        //Print out store-graphic + data
+        cout << "Total average customer queue time: " << averageTime << " seconds" << endl;
+        cout << "Average queue time of the last 15 customers: " << average15 << " seconds" << endl;
+        for(int i = 0; i < checkOuts*2+1; i++){
+            for(int j = 0; j < largestLineSize+4; j++){
+                cout << lines[i][j] << ' ';
+            }
+            cout << endl;
+        }  
+    }    
     
     void runSimulation(){
         
@@ -251,6 +260,7 @@ public:
                     tmp = ringUpCustomer(duration);
                     //Add their total time in line to avg wait time
                     if(tmp > 0){
+                        //keep track of number of customers through queue and average time in line
                         ticker ++;
                         totalTime += tmp;
                         averageTime = totalTime/ticker;
@@ -259,6 +269,16 @@ public:
                         
                         printStore();
                     }
+                    //NEED avg timer looks inaccurate
+                    
+                    //NEED avg timer for last 15 customers
+                    average15Func();
+                    //NEED input time taken to pay
+                    
+                    //NEED input simulation speed
+                    
+                    
+                    
                 }
             
         }while(true);
