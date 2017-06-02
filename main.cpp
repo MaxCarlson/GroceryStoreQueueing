@@ -36,15 +36,19 @@ class StoreSimulation{
 public:
     bool run = true;
     char lines[15][15];
-    int checkOuts, averageTime = 0, avgItems, customer, check = 0;
+    int checkOuts, avgItems, customer, check = 0, timePerItem;
     double avgArrivalTime, arrivalTime;
-    long long ticker = 0;
-    vector<deque<int> > queueVec;
+    //Total customers processed
+    int ticker = 0;
+    //temp var for holding ticker info, average time spent in queue, total time in queues
+    double tmp, averageTime = 0, totalTime = 0;
+    //customers represented by items
+    vector<deque<double> > queueVec;
+    //customer time in line timers
     vector<deque<double> > customerTimers;
-    
+    //customer at register timers
+    vector<double> customer0PositionT;
 
-    
-    
     StoreSimulation(){
         //Fill store with space
         for(int i = 0; i < 15; i++){
@@ -56,10 +60,12 @@ public:
        //Fill store with registers, average arrival time of customers and items per   
         cout << "Number of Checkouts? 1-7" << endl;
         cin >> checkOuts;
-        cout << "Average arrival time of customers in seconds? 1-6000" << endl;
+        cout << "Average arrival time of customers in seconds? 1-6000s" << endl;
         cin >> avgArrivalTime;
-        cout << "Average number of items per customer? 1-200" << endl;
+        cout << "Average number of items per customer? 1-200s" << endl;
         cin >> avgItems;
+        cout << "Average time needed to process each item? 1-15s" << endl;
+        cin >> timePerItem;
         for(int i = 0; i < checkOuts*2; i+=2){
             lines[i][0] = '|';
             lines[i][1] = 'R';
@@ -68,9 +74,9 @@ public:
         
     }
     
-    int loadCustomer(){
+    double loadCustomer(){
         //randomize item count and return for customer
-        int c = rand() % avgItems*2 + 1;
+        double c = (double)(rand() % avgItems*2 + 1);
         return c;
     }
     
@@ -91,9 +97,10 @@ public:
     void constructQueues(){
         //create multiple queues inside a vector for customers items
         for (int i = 0; i < checkOuts; i++){
-            queueVec.push_back(deque<int>());
+            queueVec.push_back(deque<double>());
             //Customer timer queues
             customerTimers.push_back(deque<double>());
+            
         } 
        // queueVec[1].push(5);
        // cout << queueVec[1].front();
@@ -159,12 +166,37 @@ public:
         //check += 1;
         arrivalTime = avgArrivalTime;
         if(timer >= arrivalTime){
-            check = 0;
+            //check = 0;
             return true;
         } 
         return false;
         
-    }    
+    } 
+    
+    double ringUpCustomer(double time){
+        //reduce customers at 0 positions item count by time passed
+        double waitTime;
+        for(int i = 0; i < checkOuts; i++){
+            if(queueVec[i].size()>0){
+                queueVec[i].at(0) -= time;
+                if(queueVec[i].at(0)<= 0){
+                    //remove customer from queue when items gone
+                    //return time they were in line
+                    waitTime = customerTimers[i].at(0);
+                    //Remove customer from both queues
+                    queueVec[i].pop_front();
+                    customerTimers[i].pop_front();
+                    return waitTime;
+                }
+            }
+            
+        }
+        return 0;
+    }
+    
+    void customerLeaves(){
+        
+    }
     
     void runSimulation(){
         
@@ -197,14 +229,33 @@ public:
                         customerTimers[qPos].push_back(0);
                         //add customer to print array
                         addCustomer(qPos);
-                        //print array showing customer data
+                        //print array showing customer + data
                         printStore();                        
    
                     }
                     //Update customer line timers
                     duration = ( clock() - lineTimer ) / (double) CLOCKS_PER_SEC;
                     updateTimers(duration);    
-                    //NEED customer wait time tracker
+                    //Process customer at register by reducing item count based on time passed
+                    //Remove customer from queue if item counts is 0 or less
+                    tmp = 0;
+                    tmp = ringUpCustomer(duration);
+                    //Add their total time in line to avg wait time
+                    if(tmp > 0){
+                        ticker ++;
+                        totalTime += tmp;
+                        averageTime = totalTime/ticker;
+                        
+                        printStore();
+                    }
+                    
+                    //Remove customers at 0 position with 0 items
+                    
+                    
+                    
+                    //
+                    
+                    
                     //cout << customerTimers[0].at(0) << endl;
                     //cout << arriving << endl;
                 }
