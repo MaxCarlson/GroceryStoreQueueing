@@ -199,13 +199,15 @@ public:
     }
     
     void average15Func(){
+        //Gives a time average for the last 15 customers
+        average15 = 0;
         while(average15Queue.size()>15){
             average15Queue.pop_front();
         }
         for(int i = 0; i < 15; i++){
             average15 += average15Queue[i];
         }
-        average15 /= 15;
+        average15 /= average15Queue.size();
     }
 
     void printStore(){
@@ -230,13 +232,13 @@ public:
                 double duration, arriving = 0;
                 //Timer for customer arrivals
                 arrivalTimer = clock();
-                //while running ~~ needs work
+                //while running ~~ needs work ADD timer to do stuff every 1 millisecond
                 while(true){
                     //Timer for customer lines
                     lineTimer = clock();    
                     //Get arrival time offset
                     arriving = ( clock() - arrivalTimer ) / (double) CLOCKS_PER_SEC;
-                    //get customer randomized arrival
+                    //get customer NEED randomized arrival
                     if(arrival(arriving) == true){
                         //Reset arrival timer
                         arrivalTimer = clock();
@@ -257,16 +259,17 @@ public:
                     }
                     //Update customer line timers
                     duration = ( clock() - lineTimer ) / (double) CLOCKS_PER_SEC;
+                    //Push time passed to each customers timer queue
                     updateTimers(duration);    
                     //Process customer at register by reducing item count based on time passed
                     //Remove customer from queue if item counts is 0 or less
                     tmp = 0;
                     tmp = ringUpCustomer(duration);
-                    //Add their total time in line to avg wait time
                     if(tmp > 0){
                         //keep track of number of customers through queue and average time in line
                         ticker ++;
                         totalTime += tmp;
+                        //Add their total time in line to avg wait time
                         averageTime = totalTime/ticker;
                         //Remove customers, 'C', from array
                         removeCustomer(removeQPos);
@@ -277,14 +280,13 @@ public:
                     
                     //avg timer for last 15 customers
                     average15Func();
-                    //NEED input time taken to pay
+                    //NEED Average 15 N/a till 15 customers have passed through checkouts
                     
-                    //NEED input simulation speed
+                    //NEED input simulation speed - double simSpeed
                     
                     //BUG prints out 5-6 less at most times or 5-6 more at random times once
                     
-                    //Sleep for x milliseconds so as not to use lots of cpu
-                    sleep(1);
+                    
                 }
             
         }while(true);
