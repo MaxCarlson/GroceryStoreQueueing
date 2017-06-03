@@ -23,7 +23,9 @@
 #include <vector>
 #include <stdio.h>      /* printf, scanf, puts, NULL */
 #include <stdlib.h>     /* srand, rand */
-
+#include <unistd.h>
+//#include <dos.h>
+#include <windows.h>
 
 
 using namespace std;
@@ -36,8 +38,8 @@ class StoreSimulation{
 public:
     bool run = true;
     char lines[50][50];
-    int checkOuts, avgItems, customer, check = 0, timePerItem, largestLineSize = 4;
-    double avgArrivalTime, arrivalTime;
+    int checkOuts, avgItems, customer, check = 0, largestLineSize = 4;
+    double avgArrivalTime, arrivalTime, paymentTime, timePerItem;
     //Total customers processed, indication of where in array to remove 'C'
     int ticker = 0, removeQPos = 0;
     //temp var for holding ticker info, average time spent in queue, total time in queues
@@ -51,7 +53,7 @@ public:
     
 
     StoreSimulation(){
-        //Fill store with space
+        //Fill store print out with space
         for(int i = 0; i < 50; i++){
             for(int j = 0; j < 50; j++){
                 lines[i][j] = ' ';
@@ -67,6 +69,8 @@ public:
         cin >> avgItems;
         cout << "Average time needed to process each item? 1-15s" << endl;
         cin >> timePerItem;
+        cout << "Average time taken to pay at register? 1-120s" << endl;
+        cin >> paymentTime;
         for(int i = 0; i < checkOuts*2; i+=2){
             lines[i][0] = '|';
             lines[i][1] = 'R';
@@ -243,8 +247,8 @@ public:
                         int qPos = chooseQueue();                        
                         //assign customer to queue
                         queueVec[qPos].push_back(customer); 
-                        //add customer to timer queue
-                        customerTimers[qPos].push_back(0);
+                        //add customer to timer queue + push average payment time
+                        customerTimers[qPos].push_back(paymentTime);
                         //add customer to print array
                         addCustomer(qPos);
                         //print array showing customer + data
@@ -271,14 +275,16 @@ public:
                     }
                     //NEED avg timer looks inaccurate
                     
-                    //NEED avg timer for last 15 customers
+                    //avg timer for last 15 customers
                     average15Func();
                     //NEED input time taken to pay
                     
                     //NEED input simulation speed
                     
+                    //BUG prints out 5-6 less at most times or 5-6 more at random times once
                     
-                    
+                    //Sleep for x milliseconds so as not to use lots of cpu
+                    sleep(1);
                 }
             
         }while(true);
